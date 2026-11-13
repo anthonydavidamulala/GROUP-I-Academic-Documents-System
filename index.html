@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Submit and track academic document requests with MUST Documents System.">
+  <title>MUST Documents System | Student Requests</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/student.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="MUST Documents System">MUST Documents System</a>
+      <nav aria-label="Main navigation">
+        <a class="nav-link active" href="/" aria-current="page">Student Requests</a>
+        <a class="nav-link" href="/registrar.html">Registrar Dashboard <span aria-hidden="true">↗</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" class="container">
+    <section class="page-heading" aria-labelledby="page-title">
+      <h1 id="page-title">MUST Documents System</h1>
+      <p class="intro">Submit an academic document request or check its status below.</p>
+    </section>
+
+    <section class="card" aria-labelledby="request-title">
+        <div class="section-heading"><div><h2 id="request-title">Request a document</h2><p>All fields are required.</p></div></div>
+        <form id="request-form">
+          <div class="form-grid">
+            <div class="field"><label for="student-number">Student Number</label><input id="student-number" name="studentNumber" placeholder="Enter your student number" maxlength="50" required autocomplete="off"></div>
+            <div class="field"><label for="student-name">Student Name</label><input id="student-name" name="studentName" placeholder="Enter your full name" maxlength="100" required autocomplete="name"></div>
+            <div class="field full-width"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="Enter your email address" maxlength="254" required autocomplete="email"></div>
+            <div class="field full-width"><label for="document-type">Document Type</label><select id="document-type" name="documentType" required><option value="" disabled selected>Select an academic document</option><option>Academic Transcript</option><option>Result Slip</option><option>Completion Letter</option><option>Academic Verification Letter</option></select></div>
+            <div class="field full-width"><label for="reason">Reason for Request</label><textarea id="reason" name="reason" rows="4" maxlength="2000" placeholder="Tell us why you need this document…" required></textarea><span class="field-hint">A short explanation is enough. Maximum 2,000 characters.</span></div>
+          </div>
+          <button id="submit-request" class="button primary" type="submit">Submit Request <span aria-hidden="true">→</span></button>
+          <p id="request-message" class="message" role="status" aria-live="polite" hidden></p>
+        </form>
+    </section>
+
+    <section id="tracking" class="card tracking-section" aria-labelledby="tracking-title">
+      <div class="section-heading"><div><h2 id="tracking-title">Track Request</h2><p>Enter the student number used when submitting your request.</p></div></div>
+      <form id="tracking-form" class="tracking-form">
+        <div class="field"><label for="tracking-number">Student Number</label><input id="tracking-number" name="studentNumber" placeholder="Enter your student number" maxlength="50" required autocomplete="off"></div>
+        <button id="check-requests" class="button secondary" type="submit">Check Requests <span aria-hidden="true">→</span></button>
+      </form>
+      <p id="tracking-message" class="message" role="status" aria-live="polite" hidden></p>
+      <div id="student-requests" class="request-cards" aria-busy="false"></div>
+      <div class="status-key" aria-label="Possible request statuses"><span class="small-label">REQUEST STATUSES</span><span class="status-text status-pending">Pending</span><span class="status-text status-under-review">Under Review</span><span class="status-text status-ready">Ready</span><span class="status-text status-rejected">Rejected</span></div>
+    </section>
+  </main>
+  <noscript><p class="container message error">Please enable JavaScript to submit and track requests.</p></noscript>
+</body>
+</html>
