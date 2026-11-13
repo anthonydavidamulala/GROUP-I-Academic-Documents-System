@@ -1,0 +1,272 @@
+{
+  "info": {
+    "name": "Group I - Academic Document API",
+    "description": "MUST Group I class prototype. Start MySQL and Express before running. Run in the listed order: the first request saves its created ID to requestId for the PATCH requests. All data is fictional. GET responses contain a requests array; creation and update responses contain request. The collection creates one database record and leaves it for the demonstration.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "requestId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Valid Document Request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/requests",
+        "description": "Creates a Pending request. Saves the new ID for subsequent update requests.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentNumber\": \"DEMO/BSE/POSTMAN\",\n  \"studentName\": \"Postman Demo Student\",\n  \"email\": \"postman@example.com\",\n  \"documentType\": \"Academic Transcript\",\n  \"reason\": \"Fictional internship application for the class demonstration.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"New status is Pending\", function () { pm.expect(pm.response.json().request.status).to.eql(\"Pending\"); });",
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"requestId\", String(pm.response.json().request.id));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Request - Missing Student Number",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/requests",
+        "description": "Shows backend required-field validation. Must return a useful error without inserting a row.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"Postman Demo Student\",\n  \"email\": \"postman@example.com\",\n  \"documentType\": \"Academic Transcript\",\n  \"reason\": \"Fictional internship application for the class demonstration.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"Useful error\", function () { pm.expect(pm.response.json().error).to.be.a(\"string\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Request - Invalid Document Type",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/requests",
+        "description": "Only the four supported academic documents are accepted.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentNumber\": \"DEMO/BSE/POSTMAN\",\n  \"studentName\": \"Postman Demo Student\",\n  \"email\": \"postman@example.com\",\n  \"documentType\": \"Passport\",\n  \"reason\": \"Fictional internship application for the class demonstration.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "View All Requests",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/requests",
+        "description": "Registrar use: lists all requests, newest first."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Requests array\", function () { pm.expect(pm.response.json().requests).to.be.an(\"array\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "View Student Requests",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/requests?studentNumber=demo%2Fbse%2Fpostman",
+        "description": "Student use: encoded student number. Lowercase searching also finds the uppercase fictional number created above."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Only matching student requests\", function () { const rows = pm.response.json().requests; pm.expect(rows.length).to.be.above(0); rows.forEach(function (row) { pm.expect(row.studentNumber.toLowerCase()).to.eql(\"demo/bse/postman\"); }); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Status - Valid",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/requests/{{requestId}}/status",
+        "description": "Run the valid creation request first. Changes that record to Ready.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Ready\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Status is Ready\", function () { pm.expect(pm.response.json().request.status).to.eql(\"Ready\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Status - Invalid Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/requests/{{requestId}}/status",
+        "description": "Approved is unsupported; the stored status must remain unchanged.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Approved\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Status - Request Not Found",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/requests/2147483647/status",
+        "description": "A valid integer that should not exist in this class database. Demonstrates 404.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Under Review\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+              "pm.test(\"Not found message\", function () { pm.expect(pm.response.json().error).to.eql(\"Request not found\"); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
